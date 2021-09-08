@@ -19,50 +19,8 @@
 
 package quickfix.examples.banzai;
 
-import quickfix.Application;
-import quickfix.DefaultMessageFactory;
-import quickfix.DoNotSend;
-import quickfix.FieldNotFound;
-import quickfix.FixVersions;
-import quickfix.IncorrectDataFormat;
-import quickfix.IncorrectTagValue;
-import quickfix.Message;
-import quickfix.RejectLogon;
-import quickfix.Session;
-import quickfix.SessionID;
-import quickfix.SessionNotFound;
-import quickfix.UnsupportedMessageType;
-import quickfix.field.AvgPx;
-import quickfix.field.BeginString;
-import quickfix.field.BusinessRejectReason;
-import quickfix.field.ClOrdID;
-import quickfix.field.CumQty;
-import quickfix.field.CxlType;
-import quickfix.field.DeliverToCompID;
-import quickfix.field.ExecID;
-import quickfix.field.HandlInst;
-import quickfix.field.LastPx;
-import quickfix.field.LastShares;
-import quickfix.field.LeavesQty;
-import quickfix.field.LocateReqd;
-import quickfix.field.MsgSeqNum;
-import quickfix.field.MsgType;
-import quickfix.field.OrdStatus;
-import quickfix.field.OrdType;
-import quickfix.field.OrderQty;
-import quickfix.field.OrigClOrdID;
-import quickfix.field.Price;
-import quickfix.field.RefMsgType;
-import quickfix.field.RefSeqNum;
-import quickfix.field.SenderCompID;
-import quickfix.field.SessionRejectReason;
-import quickfix.field.Side;
-import quickfix.field.StopPx;
-import quickfix.field.Symbol;
-import quickfix.field.TargetCompID;
-import quickfix.field.Text;
-import quickfix.field.TimeInForce;
-import quickfix.field.TransactTime;
+import quickfix.*;
+import quickfix.field.*;
 
 import javax.swing.*;
 import java.math.BigDecimal;
@@ -131,26 +89,15 @@ public class BanzaiApplication implements Application {
 
         public void run() {
             try {
-                MsgType msgType = new MsgType();
+                StringField msgType = message.getHeader().getField(new MsgType());
                 if (isAvailable) {
-                    if (isMissingField) {
-                        // For OpenFIX certification testing
-                        sendBusinessReject(message, BusinessRejectReason.CONDITIONALLY_REQUIRED_FIELD_MISSING, "Conditionally required field missing");
-                    }
-                    else if (message.getHeader().isSetField(DeliverToCompID.FIELD)) {
-                        // This is here to support OpenFIX certification
-                        sendSessionReject(message, SessionRejectReason.COMPID_PROBLEM);
-                    } else if (message.getHeader().getField(msgType).valueEquals("8")) {
+                    if (msgType.valueEquals("8")) {
                         executionReport(message, sessionID);
-                    } else if (message.getHeader().getField(msgType).valueEquals("9")) {
+                    } else if (msgType.valueEquals("9")) {
                         cancelReject(message, sessionID);
                     } else {
-                        sendBusinessReject(message, BusinessRejectReason.UNSUPPORTED_MESSAGE_TYPE,
-                                "Unsupported Message Type");
+
                     }
-                } else {
-                    sendBusinessReject(message, BusinessRejectReason.APPLICATION_NOT_AVAILABLE,
-                            "Application not available");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -158,26 +105,16 @@ public class BanzaiApplication implements Application {
         }
     }
 
-    private void sendSessionReject(Message message, int rejectReason) throws FieldNotFound,
-            SessionNotFound {
-        Message reply = createMessage(message, MsgType.REJECT);
-        reverseRoute(message, reply);
-        String refSeqNum = message.getHeader().getString(MsgSeqNum.FIELD);
-        reply.setString(RefSeqNum.FIELD, refSeqNum);
-        reply.setString(RefMsgType.FIELD, message.getHeader().getString(MsgType.FIELD));
-        reply.setInt(SessionRejectReason.FIELD, rejectReason);
-        Session.sendToTarget(reply);
+    public void sendMarketDataRequest(Message message,SessionID sessionID) throws FieldNotFound, SessionNotFound {
+        Message marketDataRequest = createMessage(message, MsgType.MARKET_DATA_REQUEST);
+        marketDataRequest.setField(new SubscriptionRequestType('0'));
+        marketDataRequest.setField(new MDReqID("TEST_marketDataRequest"));
+        Session.sendToTarget(marketDataRequest,sessionID);
     }
 
     private void sendBusinessReject(Message message, int rejectReason, String rejectText)
             throws FieldNotFound, SessionNotFound {
         Message reply = createMessage(message, MsgType.BUSINESS_MESSAGE_REJECT);
-        reverseRoute(message, reply);
-        String refSeqNum = message.getHeader().getString(MsgSeqNum.FIELD);
-        reply.setString(RefSeqNum.FIELD, refSeqNum);
-        reply.setString(RefMsgType.FIELD, message.getHeader().getString(MsgType.FIELD));
-        reply.setInt(BusinessRejectReason.FIELD, rejectReason);
-        reply.setString(Text.FIELD, rejectText);
         Session.sendToTarget(reply);
     }
 

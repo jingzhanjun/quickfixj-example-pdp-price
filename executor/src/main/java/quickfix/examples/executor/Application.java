@@ -55,6 +55,7 @@ import quickfix.field.OrderQty;
 import quickfix.field.Price;
 import quickfix.field.Side;
 import quickfix.field.Symbol;
+import quickfix.fix40.ExecutionReport;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -149,7 +150,7 @@ public class Application extends quickfix.MessageCracker implements quickfix.App
             sendMessage(sessionID, accept);
 
             if (isOrderExecutable(order, price)) {
-                quickfix.fix40.ExecutionReport fill = new quickfix.fix40.ExecutionReport(genOrderID(), genExecID(),
+                ExecutionReport fill = new ExecutionReport(genOrderID(), genExecID(),
                         new ExecTransType(ExecTransType.NEW), new OrdStatus(OrdStatus.FILLED), order.getSymbol(), order
                                 .getSide(), orderQty, new LastShares(orderQty.getValue()), new LastPx(price.getValue()),
                         new CumQty(orderQty.getValue()), new AvgPx(price.getValue()));
