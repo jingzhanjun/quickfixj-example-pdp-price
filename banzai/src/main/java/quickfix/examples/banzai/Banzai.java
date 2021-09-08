@@ -29,6 +29,7 @@ import quickfix.fix50sp1.MarketDataRequest;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -97,15 +98,14 @@ public class Banzai {
     public static void main(String[] args) throws Exception {
         try {
             banzai = new Banzai(args);
-            if (!System.getProperties().containsKey("openfix")) {
-                banzai.logon();
-            }
+            banzai.logon();
+        } catch (Exception e) {
+            log.info(e.getMessage(), e);
+        }finally{
             MarketDataRequest marketDataRequest=new MarketDataRequest();
             marketDataRequest.setField(new SubscriptionRequestType('0'));
             marketDataRequest.setField(new MDReqID("TEST_marketDataRequest"));
             Session.sendToTarget(marketDataRequest,initiator.getSessions().get(0));
-        } catch (Exception e) {
-            log.info(e.getMessage(), e);
         }
 
     }
