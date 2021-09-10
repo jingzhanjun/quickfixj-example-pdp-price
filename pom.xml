@@ -22,10 +22,8 @@
 	</properties>
 
 	<modules>
-		<module>executor</module>
-		<module>ordermatch</module>
-		<module>banzai</module>
-		<!-- <module>quickfixj-core</module> -->
+		<module>initiator</module>
+		<module>initiator_2</module>
 	</modules>
 
 	<dependencies>
