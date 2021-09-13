@@ -7,7 +7,7 @@
 		<version>2.3.0</version>
 	</parent>
 
-	<artifactId>quickfixj-examples-banzai</artifactId>
+	<artifactId>initiator</artifactId>
 	<packaging>bundle</packaging>
 
 	<name>QuickFIX/J Examples - Banzai</name>
