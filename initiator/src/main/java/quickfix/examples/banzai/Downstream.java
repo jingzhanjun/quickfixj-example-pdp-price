@@ -44,7 +44,6 @@ public class Downstream {
     private static Downstream downstream;
     private boolean initiatorStarted = false;
     private static Initiator initiator = null;
-    private static BanzaiApplication application=new BanzaiApplication(new OrderTableModel(), new ExecutionTableModel());
 
     public Downstream(String[] args) throws Exception {
         InputStream inputStream = null;
@@ -62,6 +61,9 @@ public class Downstream {
 
         boolean logHeartbeats = Boolean.valueOf(System.getProperty("logHeartbeats", "true"));
 
+        OrderTableModel orderTableModel = new OrderTableModel();
+        ExecutionTableModel executionTableModel = new ExecutionTableModel();
+        BanzaiApplication application = new BanzaiApplication(orderTableModel, executionTableModel);
         MessageStoreFactory messageStoreFactory = new FileStoreFactory(settings);
         LogFactory logFactory = new ScreenLogFactory(true, true, true, logHeartbeats);
         MessageFactory messageFactory = new DefaultMessageFactory();
@@ -93,8 +95,8 @@ public class Downstream {
         }
     }
 
-    public static Downstream get() {
-        return downstream;
+    public void stop() {
+        shutdownLatch.countDown();
     }
 
     public static void main(String[] args) throws Exception {
@@ -104,17 +106,20 @@ public class Downstream {
         } catch (Exception e) {
             log.info(e.getMessage(), e);
         }finally{
-//            testMarketDataRequest();
-            NewOrderSingle newOrderSingle = new NewOrderSingle();
-            newOrderSingle.set(new ClOrdID("TEST_NewOrderSingle"));
-            newOrderSingle.set(new Side('1'));
-            LocalDateTime localDateTime = LocalDateTime.of(2021, 9, 9, 12, 0, 0);
-            log.info("localDateTime is {},date is {}",localDateTime, Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
-            newOrderSingle.set(new TransactTime(localDateTime));
-            newOrderSingle.set(new OrdType('1'));
-            Session.sendToTarget(newOrderSingle,initiator.getSessions().get(0));
+            testMarketDataRequest();
+//            testNewOrderSingle();
         }
+    }
 
+    private static void testNewOrderSingle() throws SessionNotFound {
+        NewOrderSingle newOrderSingle = new NewOrderSingle();
+        newOrderSingle.set(new ClOrdID("TEST_NewOrderSingle"));
+        newOrderSingle.set(new Side('1'));
+        LocalDateTime localDateTime = LocalDateTime.of(2021, 9, 9, 12, 0, 0);
+        log.info("localDateTime is {},date is {}",localDateTime, Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
+        newOrderSingle.set(new TransactTime(localDateTime));
+        newOrderSingle.set(new OrdType('1'));
+        Session.sendToTarget(newOrderSingle,initiator.getSessions().get(0));
     }
 
     private static void testMarketDataRequest() throws SessionNotFound {

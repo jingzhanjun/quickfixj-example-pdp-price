@@ -105,16 +105,20 @@ public class Downstream2 {
             log.info(e.getMessage(), e);
         }finally{
 //            testMarketDataRequest();
-            NewOrderSingle newOrderSingle = new NewOrderSingle();
-            newOrderSingle.set(new ClOrdID("TEST_NewOrderSingle"));
-            newOrderSingle.set(new Side('1'));
-            LocalDateTime localDateTime = LocalDateTime.of(2021, 9, 9, 12, 0, 0);
-            log.info("localDateTime is {},date is {}",localDateTime, Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
-            newOrderSingle.set(new TransactTime(localDateTime));
-            newOrderSingle.set(new OrdType('1'));
-            Session.sendToTarget(newOrderSingle,initiator.getSessions().get(0));
+            testNewOrderSingle();
         }
 
+    }
+
+    private static void testNewOrderSingle() throws SessionNotFound {
+        NewOrderSingle newOrderSingle = new NewOrderSingle();
+        newOrderSingle.set(new ClOrdID("TEST_NewOrderSingle"));
+        newOrderSingle.set(new Side('1'));
+        LocalDateTime localDateTime = LocalDateTime.of(2021, 9, 9, 12, 0, 0);
+        log.info("localDateTime is {},date is {}",localDateTime, Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
+        newOrderSingle.set(new TransactTime(localDateTime));
+        newOrderSingle.set(new OrdType('1'));
+        Session.sendToTarget(newOrderSingle,initiator.getSessions().get(0));
     }
 
     private static void testMarketDataRequest() throws SessionNotFound {
