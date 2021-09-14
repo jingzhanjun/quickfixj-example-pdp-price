@@ -130,31 +130,31 @@ public class BanzaiApplication implements Application {
         }
 
         public void run() {
-            try {
-                MsgType msgType = new MsgType();
-                if (isAvailable) {
-                    if (isMissingField) {
-                        // For OpenFIX certification testing
-                        sendBusinessReject(message, BusinessRejectReason.CONDITIONALLY_REQUIRED_FIELD_MISSING, "Conditionally required field missing");
-                    }
-                    else if (message.getHeader().isSetField(DeliverToCompID.FIELD)) {
-                        // This is here to support OpenFIX certification
-                        sendSessionReject(message, SessionRejectReason.COMPID_PROBLEM);
-                    } else if (message.getHeader().getField(msgType).valueEquals("8")) {
-                        executionReport(message, sessionID);
-                    } else if (message.getHeader().getField(msgType).valueEquals("9")) {
-                        cancelReject(message, sessionID);
-                    } else {
-                        sendBusinessReject(message, BusinessRejectReason.UNSUPPORTED_MESSAGE_TYPE,
-                                "Unsupported Message Type");
-                    }
-                } else {
-                    sendBusinessReject(message, BusinessRejectReason.APPLICATION_NOT_AVAILABLE,
-                            "Application not available");
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+//            try {
+//                MsgType msgType = new MsgType();
+//                if (isAvailable) {
+//                    if (isMissingField) {
+//                        // For OpenFIX certification testing
+//                        sendBusinessReject(message, BusinessRejectReason.CONDITIONALLY_REQUIRED_FIELD_MISSING, "Conditionally required field missing");
+//                    }
+//                    else if (message.getHeader().isSetField(DeliverToCompID.FIELD)) {
+//                        // This is here to support OpenFIX certification
+//                        sendSessionReject(message, SessionRejectReason.COMPID_PROBLEM);
+//                    } else if (message.getHeader().getField(msgType).valueEquals("8")) {
+//                        executionReport(message, sessionID);
+//                    } else if (message.getHeader().getField(msgType).valueEquals("9")) {
+//                        cancelReject(message, sessionID);
+//                    } else {
+//                        sendBusinessReject(message, BusinessRejectReason.UNSUPPORTED_MESSAGE_TYPE,
+//                                "Unsupported Message Type");
+//                    }
+//                } else {
+//                    sendBusinessReject(message, BusinessRejectReason.APPLICATION_NOT_AVAILABLE,
+//                            "Application not available");
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
         }
     }
 

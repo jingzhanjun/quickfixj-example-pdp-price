@@ -88,20 +88,20 @@ public class BanzaiApplication implements Application {
         }
 
         public void run() {
-            try {
-                StringField msgType = message.getHeader().getField(new MsgType());
-                if (isAvailable) {
-                    if (msgType.valueEquals("8")) {
-                        executionReport(message, sessionID);
-                    } else if (msgType.valueEquals("9")) {
-                        cancelReject(message, sessionID);
-                    } else {
-
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+//            try {
+//                StringField msgType = message.getHeader().getField(new MsgType());
+//                if (isAvailable) {
+//                    if (msgType.valueEquals("8")) {
+//                        executionReport(message, sessionID);
+//                    } else if (msgType.valueEquals("9")) {
+//                        cancelReject(message, sessionID);
+//                    } else {
+//
+//                    }
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
         }
     }
 
