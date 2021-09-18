@@ -109,6 +109,7 @@ public class Downstream {
             testMarketDataRequest();
 //            testNewOrderSingle();
         }
+//        shutdownLatch.await();
     }
 
     private static void testNewOrderSingle() throws SessionNotFound {
