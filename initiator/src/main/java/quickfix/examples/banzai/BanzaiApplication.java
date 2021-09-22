@@ -19,6 +19,8 @@
 
 package quickfix.examples.banzai;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import quickfix.Application;
 import quickfix.DefaultMessageFactory;
 import quickfix.DoNotSend;
@@ -32,46 +34,17 @@ import quickfix.Session;
 import quickfix.SessionID;
 import quickfix.SessionNotFound;
 import quickfix.UnsupportedMessageType;
-import quickfix.field.AvgPx;
-import quickfix.field.BeginString;
-import quickfix.field.BusinessRejectReason;
-import quickfix.field.ClOrdID;
-import quickfix.field.CumQty;
-import quickfix.field.CxlType;
-import quickfix.field.DeliverToCompID;
-import quickfix.field.ExecID;
-import quickfix.field.HandlInst;
-import quickfix.field.LastPx;
-import quickfix.field.LastShares;
-import quickfix.field.LeavesQty;
-import quickfix.field.LocateReqd;
-import quickfix.field.MsgSeqNum;
-import quickfix.field.MsgType;
-import quickfix.field.OrdStatus;
-import quickfix.field.OrdType;
-import quickfix.field.OrderQty;
-import quickfix.field.OrigClOrdID;
-import quickfix.field.Price;
-import quickfix.field.RefMsgType;
-import quickfix.field.RefSeqNum;
-import quickfix.field.SenderCompID;
-import quickfix.field.SessionRejectReason;
-import quickfix.field.Side;
-import quickfix.field.StopPx;
-import quickfix.field.Symbol;
-import quickfix.field.TargetCompID;
-import quickfix.field.Text;
-import quickfix.field.TimeInForce;
-import quickfix.field.TransactTime;
+import quickfix.field.*;
+import quickfix.field.Currency;
+import quickfix.fix50sp1.MarketDataIncrementalRefresh;
+import quickfix.tools.FixMessageUtils;
 
 import javax.swing.*;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 
 public class BanzaiApplication implements Application {
+    private Logger log= LoggerFactory.getLogger(getClass());
     private final DefaultMessageFactory messageFactory = new DefaultMessageFactory();
     private OrderTableModel orderTableModel = null;
     private ExecutionTableModel executionTableModel = null;
@@ -130,31 +103,19 @@ public class BanzaiApplication implements Application {
         }
 
         public void run() {
-//            try {
-//                MsgType msgType = new MsgType();
-//                if (isAvailable) {
-//                    if (isMissingField) {
-//                        // For OpenFIX certification testing
-//                        sendBusinessReject(message, BusinessRejectReason.CONDITIONALLY_REQUIRED_FIELD_MISSING, "Conditionally required field missing");
-//                    }
-//                    else if (message.getHeader().isSetField(DeliverToCompID.FIELD)) {
-//                        // This is here to support OpenFIX certification
-//                        sendSessionReject(message, SessionRejectReason.COMPID_PROBLEM);
-//                    } else if (message.getHeader().getField(msgType).valueEquals("8")) {
-//                        executionReport(message, sessionID);
-//                    } else if (message.getHeader().getField(msgType).valueEquals("9")) {
-//                        cancelReject(message, sessionID);
-//                    } else {
-//                        sendBusinessReject(message, BusinessRejectReason.UNSUPPORTED_MESSAGE_TYPE,
-//                                "Unsupported Message Type");
-//                    }
-//                } else {
-//                    sendBusinessReject(message, BusinessRejectReason.APPLICATION_NOT_AVAILABLE,
-//                            "Application not available");
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
+            try {
+                if (FixMessageUtils.isMessageOfType(message,MsgType.MARKET_DATA_INCREMENTAL_REFRESH)) {
+                    List<MarketDataIncrementalRefresh.NoMDEntries> NoMDEntries=FixMessageUtils.findAnyGroup(message, new MarketDataIncrementalRefresh.NoMDEntries());
+                    String MDReqID = FixMessageUtils.safeGetField(message, new MDReqID()).orElse("no_request");
+                    Integer MDBookType = FixMessageUtils.safeGetField(message, new MDBookType()).orElse(0);
+                    String TradeDate = FixMessageUtils.safeGetField(message, new TradeDate()).orElse("NONE");
+                    String  Symbol= FixMessageUtils.safeGetField(message, new Symbol()).orElse("NONE");
+                    log.info("received a MarketDataIncrementalRefresh:MDReqID={},MDBookType={},TradeDate={},Symbol={},NoMDEntries={}",
+                            MDReqID,MDBookType,TradeDate,Symbol,NoMDEntries);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
