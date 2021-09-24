@@ -26,9 +26,11 @@ import quickfix.*;
 import quickfix.field.*;
 import quickfix.fix43.NewOrderSingle;
 import quickfix.fix50sp1.MarketDataRequest;
+import quickfix.fix50sp1.QuoteRequest;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -108,18 +110,36 @@ public class Downstream {
         }finally{
             testMarketDataRequest();
 //            testNewOrderSingle();
+//            for(int i=0;i<10;i++){
+//                testQuoteRequest();
+//            }
         }
         shutdownLatch.await();
     }
 
+    private static void testQuoteRequest() throws SessionNotFound{
+        QuoteRequest qr=new QuoteRequest();
+        qr.setField(new QuoteReqID("testQuoteRequest_ID"));
+        qr.setField(new Symbol("USD/RMB"));
+        qr.setField(new ClOrdID("LimitOrderId"));
+        qr.setField(new Side('1'));
+        qr.setField(new QuoteType(1));
+        qr.setField(new OrdType('2'));
+        qr.setField(new OptPayAmount(Double.valueOf("100000.99")));
+        qr.setField(new TransactTime(LocalDateTime.of(2021,9,24,14,46,50)));
+        Session.sendToTarget(qr,initiator.getSessions().get(0));
+    }
+
     private static void testNewOrderSingle() throws SessionNotFound {
         NewOrderSingle newOrderSingle = new NewOrderSingle();
-        newOrderSingle.set(new ClOrdID("TEST_NewOrderSingle"));
-        newOrderSingle.set(new Side('1'));
-        LocalDateTime localDateTime = LocalDateTime.of(2021, 9, 9, 12, 0, 0);
-        log.info("localDateTime is {},date is {}",localDateTime, Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
-        newOrderSingle.set(new TransactTime(localDateTime));
-        newOrderSingle.set(new OrdType('1'));
+        newOrderSingle.setField(new ClOrdID("NewLimitOrder_ID"));
+        newOrderSingle.setField(new OrderID("TEST_NewOrderSingle_ID"));
+        newOrderSingle.setField(new Symbol("USD/RMB"));
+        newOrderSingle.setField(new Side('1'));
+        newOrderSingle.setField(new OrdType('1'));
+        newOrderSingle.setField(new CumQty(Double.valueOf("100.0")));
+        newOrderSingle.setField(new OptPayAmount(Double.valueOf("100.0")));
+        newOrderSingle.setField(new TradeDate(new SimpleDateFormat("yyyyMMdd").format(new Date())));
         Session.sendToTarget(newOrderSingle,initiator.getSessions().get(0));
     }
 
