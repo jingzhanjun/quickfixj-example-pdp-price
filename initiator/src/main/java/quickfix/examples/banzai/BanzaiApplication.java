@@ -105,13 +105,7 @@ public class BanzaiApplication implements Application {
         public void run() {
             try {
                 if (FixMessageUtils.isMessageOfType(message,MsgType.MARKET_DATA_INCREMENTAL_REFRESH)) {
-                    List<MarketDataIncrementalRefresh.NoMDEntries> NoMDEntries=FixMessageUtils.findAnyGroup(message, new MarketDataIncrementalRefresh.NoMDEntries());
-                    String MDReqID = FixMessageUtils.safeGetField(message, new MDReqID()).orElse("no_request");
-                    Integer MDBookType = FixMessageUtils.safeGetField(message, new MDBookType()).orElse(0);
-                    String TradeDate = FixMessageUtils.safeGetField(message, new TradeDate()).orElse("NONE");
-                    String  Symbol= FixMessageUtils.safeGetField(message, new Symbol()).orElse("NONE");
-                    log.info("received a MarketDataIncrementalRefresh:MDReqID={},MDBookType={},TradeDate={},Symbol={},NoMDEntries={}",
-                            MDReqID,MDBookType,TradeDate,Symbol,NoMDEntries);
+                    log.info("received a MarketDataIncrementalRefresh {}",message);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

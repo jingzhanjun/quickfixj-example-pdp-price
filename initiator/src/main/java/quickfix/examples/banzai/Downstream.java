@@ -109,7 +109,7 @@ public class Downstream {
             testMarketDataRequest();
 //            testNewOrderSingle();
         }
-//        shutdownLatch.await();
+        shutdownLatch.await();
     }
 
     private static void testNewOrderSingle() throws SessionNotFound {
@@ -125,8 +125,10 @@ public class Downstream {
 
     private static void testMarketDataRequest() throws SessionNotFound {
         MarketDataRequest marketDataRequest=new MarketDataRequest();
-        marketDataRequest.setField(new SubscriptionRequestType('0'));
+        marketDataRequest.setField(new SubscriptionRequestType('2'));
         marketDataRequest.setField(new MDReqID("TEST_marketDataRequest"));
+        marketDataRequest.setField(new Symbol("USD/CNY"));
+        marketDataRequest.setField(new MarketDepth(1));
         Session.sendToTarget(marketDataRequest,initiator.getSessions().get(0));
     }
 
