@@ -102,15 +102,7 @@ public class BanzaiApplication implements Application {
             this.sessionID = sessionID;
         }
 
-        public void run() {
-            try {
-                if (FixMessageUtils.isMessageOfType(message,MsgType.MARKET_DATA_INCREMENTAL_REFRESH)) {
-                    log.info("received a MarketDataIncrementalRefresh {}",message);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        public void run() {}
     }
 
     private void sendSessionReject(Message message, int rejectReason) throws FieldNotFound,

@@ -145,7 +145,7 @@ public class Downstream {
 
     private static void testMarketDataRequest() throws SessionNotFound {
         MarketDataRequest marketDataRequest=new MarketDataRequest();
-        marketDataRequest.setField(new SubscriptionRequestType('2'));
+        marketDataRequest.setField(new SubscriptionRequestType('1'));
         marketDataRequest.setField(new MDReqID("TEST_marketDataRequest"));
         marketDataRequest.setField(new Symbol("USD/CNY"));
         marketDataRequest.setField(new MarketDepth(1));
