@@ -26,6 +26,7 @@ import quickfix.*;
 import quickfix.field.*;
 import quickfix.fix43.NewOrderSingle;
 import quickfix.fix50sp1.MarketDataRequest;
+import quickfix.fix50sp1.QuoteCancel;
 import quickfix.fix50sp1.QuoteRequest;
 
 import java.io.FileInputStream;
@@ -108,11 +109,12 @@ public class Downstream {
         } catch (Exception e) {
             log.info(e.getMessage(), e);
         }finally{
-            testMarketDataRequest();
-//            testNewOrderSingle();
+//            testMarketDataRequest();
+            testNewOrderSingle();
 //            for(int i=0;i<10;i++){
 //                testQuoteRequest();
 //            }
+//            testQuoteCancel();
         }
         shutdownLatch.await();
     }
@@ -150,6 +152,14 @@ public class Downstream {
         marketDataRequest.setField(new Symbol("USD/CNY"));
         marketDataRequest.setField(new MarketDepth(1));
         Session.sendToTarget(marketDataRequest,initiator.getSessions().get(0));
+    }
+
+    private static void testQuoteCancel() throws SessionNotFound {
+        QuoteCancel quoteCancel=new QuoteCancel();
+        quoteCancel.setField(new QuoteID("TEST_QuoteID"));
+        quoteCancel.setField(new QuoteCancelType(5));
+        quoteCancel.setField(new QuoteReqID("test_QuoteReqID"));
+        Session.sendToTarget(quoteCancel,initiator.getSessions().get(0));
     }
 
 }

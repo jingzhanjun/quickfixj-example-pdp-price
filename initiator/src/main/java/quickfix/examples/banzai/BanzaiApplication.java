@@ -102,7 +102,12 @@ public class BanzaiApplication implements Application {
             this.sessionID = sessionID;
         }
 
-        public void run() {}
+        public void run() {
+//            log.info("receive message" + message);
+//            String MDReqID = FixMessageUtils.safeGetField(message, new MDReqID()).orElse("no-id");
+//            log.info("receive message MDReqID {}" + MDReqID);
+
+        }
     }
 
     private void sendSessionReject(Message message, int rejectReason) throws FieldNotFound,
