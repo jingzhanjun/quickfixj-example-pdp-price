@@ -35,6 +35,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -119,30 +120,28 @@ public class Downstream {
         shutdownLatch.await();
     }
 
-    private static void testQuoteRequest() throws SessionNotFound{
-        QuoteRequest qr=new QuoteRequest();
-        qr.setField(new QuoteReqID("testQuoteRequest_ID"));
-        qr.setField(new Symbol("USD/RMB"));
-        qr.setField(new ClOrdID("LimitOrderId"));
-        qr.setField(new Side('1'));
-        qr.setField(new QuoteType(1));
-        qr.setField(new OrdType('2'));
-        qr.setField(new OptPayAmount(Double.valueOf("100000.99")));
-        qr.setField(new TransactTime(LocalDateTime.of(2021,9,24,14,46,50)));
-        Session.sendToTarget(qr,initiator.getSessions().get(0));
-    }
-
     private static void testNewOrderSingle() throws SessionNotFound {
         NewOrderSingle newOrderSingle = new NewOrderSingle();
-        newOrderSingle.setField(new ClOrdID("NewLimitOrder_ID"));
-        newOrderSingle.setField(new OrderID("TEST_NewOrderSingle_ID"));
-        newOrderSingle.setField(new Symbol("USD/RMB"));
-        newOrderSingle.setField(new Side('1'));
-        newOrderSingle.setField(new OrdType('1'));
-        newOrderSingle.setField(new CumQty(Double.valueOf("100.0")));
-        newOrderSingle.setField(new OptPayAmount(Double.valueOf("100.0")));
+        newOrderSingle.setField(new QuoteID("QuoteID_56ed394f-314c-4755-8a40-716e8e304113"));
+        newOrderSingle.setField(new ClOrdID("ClOrdID_"+UUID.randomUUID().toString()));
+        newOrderSingle.setField(new Account("usrid1001"));
+        newOrderSingle.setField(new QuoteRespID("20009"));
+        newOrderSingle.setField(new QuoteMsgID("GenIdeal"));
         newOrderSingle.setField(new TradeDate(new SimpleDateFormat("yyyyMMdd").format(new Date())));
         Session.sendToTarget(newOrderSingle,initiator.getSessions().get(0));
+    }
+
+    private static void testQuoteRequest() throws SessionNotFound{
+        QuoteRequest qr=new QuoteRequest();
+        qr.setField(new QuoteReqID("QuoteRequestID_"+ UUID.randomUUID().toString()));
+        qr.setField(new Symbol("USDCNY"));
+//        qr.setField(new ClOrdID("LimitOrderId"));
+        qr.setField(new Side('1'));
+        qr.setField(new QuoteType(0));
+        qr.setField(new OrdType('2'));
+        qr.setField(new OptPayAmount(Double.valueOf("1000")));
+        qr.setField(new TransactTime(new Date().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()));
+        Session.sendToTarget(qr,initiator.getSessions().get(0));
     }
 
     private static void testMarketDataRequest() throws SessionNotFound {
