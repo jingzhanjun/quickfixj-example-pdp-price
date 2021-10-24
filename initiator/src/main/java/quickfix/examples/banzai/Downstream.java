@@ -124,8 +124,8 @@ public class Downstream {
         NewOrderSingle newOrderSingle = new NewOrderSingle();
         newOrderSingle.setField(new QuoteID("QuoteID_56ed394f-314c-4755-8a40-716e8e304113"));
         newOrderSingle.setField(new ClOrdID("ClOrdID_"+UUID.randomUUID().toString()));
-        newOrderSingle.setField(new Account("usrid1001"));
-        newOrderSingle.setField(new QuoteRespID("20009"));
+        newOrderSingle.setField(new Account("usrid1000"));
+        newOrderSingle.setField(new QuoteRespID("20122"));
         newOrderSingle.setField(new QuoteMsgID("GenIdeal"));
         newOrderSingle.setField(new TradeDate(new SimpleDateFormat("yyyyMMdd").format(new Date())));
         Session.sendToTarget(newOrderSingle,initiator.getSessions().get(0));
@@ -148,7 +148,8 @@ public class Downstream {
         MarketDataRequest marketDataRequest=new MarketDataRequest();
         marketDataRequest.setField(new SubscriptionRequestType('1'));
         marketDataRequest.setField(new MDReqID("TEST_marketDataRequest"));
-//        marketDataRequest.setField(new Symbol("USD/CNY"));
+        marketDataRequest.setField(new PartyID("PDP_PRICE"));
+        marketDataRequest.setField(new Symbol("JPY.AUD"));
         marketDataRequest.setField(new MarketDepth(1));
         Session.sendToTarget(marketDataRequest,initiator.getSessions().get(0));
     }
