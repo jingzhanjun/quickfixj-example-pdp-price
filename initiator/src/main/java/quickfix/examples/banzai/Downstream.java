@@ -149,7 +149,7 @@ public class Downstream {
         marketDataRequest.setField(new SubscriptionRequestType('1'));
         marketDataRequest.setField(new MDReqID("TEST_marketDataRequest"));
         marketDataRequest.setField(new PartyID("PDP_PRICE"));
-        marketDataRequest.setField(new Symbol("JPY.AUD"));
+        marketDataRequest.setField(new Symbol("CNY.JPY"));
         marketDataRequest.setField(new MarketDepth(1));
         Session.sendToTarget(marketDataRequest,initiator.getSessions().get(0));
     }
