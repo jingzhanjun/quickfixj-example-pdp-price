@@ -149,7 +149,9 @@ public class Downstream {
         marketDataRequest.setField(new SubscriptionRequestType('1'));
         marketDataRequest.setField(new MDReqID("TEST_marketDataRequest"));
         marketDataRequest.setField(new PartyID("PDP_PRICE"));
-        marketDataRequest.setField(new Symbol("CNY.JPY"));
+        marketDataRequest.setField(new Symbol("ALL"));
+        marketDataRequest.setField(new CFICode("5D"));//SPOT,2D,1M...
+        marketDataRequest.setField(new OptPayAmount(Double.valueOf("25000000")));
         marketDataRequest.setField(new MarketDepth(1));
         Session.sendToTarget(marketDataRequest,initiator.getSessions().get(0));
     }
