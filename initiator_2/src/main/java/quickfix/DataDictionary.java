@@ -132,7 +132,7 @@ public class DataDictionary {
      * Initialize a data dictionary from a URL or a file path.
      *
      * @param location a URL or file system path
-     * @param documentBuilderFactorySupplier custom document builder factory supplier
+     * @param documentBuilderFactorySupplier com.pactera.fix.custom document builder factory supplier
      * @throws ConfigError
      */
     public DataDictionary(String location, Supplier<DocumentBuilderFactory> documentBuilderFactorySupplier) throws
@@ -154,7 +154,7 @@ public class DataDictionary {
      * Initialize a data dictionary from an input stream.
      *
      * @param in the input stream
-     * @param documentBuilderFactorySupplier custom document builder factory supplier
+     * @param documentBuilderFactorySupplier com.pactera.fix.custom document builder factory supplier
      * @throws ConfigError
      */
     public DataDictionary(InputStream in, Supplier<DocumentBuilderFactory> documentBuilderFactorySupplier) throws ConfigError {

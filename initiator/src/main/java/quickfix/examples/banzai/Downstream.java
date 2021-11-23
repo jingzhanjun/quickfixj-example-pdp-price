@@ -111,10 +111,8 @@ public class Downstream {
             log.info(e.getMessage(), e);
         }finally{
             String symbols="AUD.CAD,AUD.CHF,AUD.HKD,AUD.JPY,AUD.NZD,AUD.USD,CAD.CHF,CAD.HKD,CAD.JPY,CHF.HKD,CHF.JPY,EUR.AUD,EUR.CAD,EUR.CHF,EUR.GBP,EUR.HKD,EUR.JPY,EUR.NZD,EUR.USD,GBP.AUD,GBP.CAD,GBP.CHF,GBP.HKD,GBP.JPY,GBP.NZD,GBP.USD,HKD.CNH,HKD.JPY,NZD.CAD,NZD.CHF,NZD.HKD,NZD.JPY,NZD.USD,USD.CAD,USD.CHF,USD.CNH,USD.HKD,USD.JPY,XAU.USD";
-            String[] symbolArray=symbols.split("[,]");
-            symbolArray=new String[]{"AUD.JPY"};
-            testMarketDataRequest(symbolArray);
-//            testMarketDataRequest();
+            String[] bandArray=new String[]{"3000000","5000000"};
+            testMarketDataRequest(bandArray,"EUR.USD");
 //            testNewOrderSingle();
 //            for(int i=0;i<10;i++){
 //                testQuoteRequest();
@@ -124,28 +122,12 @@ public class Downstream {
         shutdownLatch.await();
     }
 
-    private static void testMarketDataRequest(String[] symbols) throws SessionNotFound {
-        MarketDataRequest marketDataRequest=new MarketDataRequest();
-        MarketDataRequest.NoRelatedSym sGroup=new MarketDataRequest.NoRelatedSym();
-        for(String s:symbols){
-            sGroup.setField(new Symbol(s));
-            marketDataRequest.addGroup(sGroup);
-        }
-        marketDataRequest.setField(new SubscriptionRequestType('2'));
-        marketDataRequest.setField(new MDReqID("TEST_marketDataRequest"));
-        marketDataRequest.setField(new PartyID("PDP_PRICE"));
-        marketDataRequest.setField(new ApplSeqNum(1));
-        marketDataRequest.setField(new CFICode("5M"));//SPOT,2D,1M...
-        marketDataRequest.setField(new OptPayAmount(Double.valueOf("10000")));
-        Session.sendToTarget(marketDataRequest,initiator.getSessions().get(0));
-    }
-
     private static void testNewOrderSingle() throws SessionNotFound {
         NewOrderSingle newOrderSingle = new NewOrderSingle();
         newOrderSingle.setField(new QuoteID("QuoteID_56ed394f-314c-4755-8a40-716e8e304113"));
         newOrderSingle.setField(new ClOrdID("ClOrdID_"+UUID.randomUUID().toString()));
-        newOrderSingle.setField(new Account("usrid1000"));
-        newOrderSingle.setField(new QuoteRespID("20122"));
+        newOrderSingle.setField(new Account("usrid1001"));
+        newOrderSingle.setField(new QuoteRespID("20009"));
         newOrderSingle.setField(new QuoteMsgID("GenIdeal"));
         newOrderSingle.setField(new TradeDate(new SimpleDateFormat("yyyyMMdd").format(new Date())));
         Session.sendToTarget(newOrderSingle,initiator.getSessions().get(0));
@@ -155,13 +137,28 @@ public class Downstream {
         QuoteRequest qr=new QuoteRequest();
         qr.setField(new QuoteReqID("QuoteRequestID_"+ UUID.randomUUID().toString()));
         qr.setField(new Symbol("USDCNY"));
-//        qr.setField(new ClOrdID("LimitOrderId"));
         qr.setField(new Side('1'));
         qr.setField(new QuoteType(0));
         qr.setField(new OrdType('2'));
         qr.setField(new OptPayAmount(Double.valueOf("1000")));
         qr.setField(new TransactTime(new Date().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()));
         Session.sendToTarget(qr,initiator.getSessions().get(0));
+    }
+
+    private static void testMarketDataRequest(String[] bands, String s) throws SessionNotFound {
+        MarketDataRequest marketDataRequest=new MarketDataRequest();
+        MarketDataRequest.NoRelatedSym sGroup=new MarketDataRequest.NoRelatedSym();
+        for(String band:bands){
+            sGroup.setField(new Symbol(s));
+            sGroup.setField(new MDEntrySize(Double.valueOf(band)));
+            marketDataRequest.addGroup(sGroup);
+        }
+        marketDataRequest.setField(new SubscriptionRequestType('1'));//0-full,1-full+update,2-unsubscribe
+        marketDataRequest.setField(new MDReqID("TEST_marketDataRequest"));
+        marketDataRequest.setField(new PartyID("PDP_PRICE"));
+        marketDataRequest.setField(new ApplSeqNum(1));
+        marketDataRequest.setField(new SettlType("1"));//0-SPOT,1-2D
+        Session.sendToTarget(marketDataRequest,initiator.getSessions().get(0));
     }
 
     private static void testQuoteCancel() throws SessionNotFound {
