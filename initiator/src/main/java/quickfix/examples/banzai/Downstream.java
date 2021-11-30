@@ -112,12 +112,12 @@ public class Downstream {
         }finally{
             String symbols="AUD.CAD,AUD.CHF,AUD.HKD,AUD.JPY,AUD.NZD,AUD.USD,CAD.CHF,CAD.HKD,CAD.JPY,CHF.HKD,CHF.JPY,EUR.AUD,EUR.CAD,EUR.CHF,EUR.GBP,EUR.HKD,EUR.JPY,EUR.NZD,EUR.USD,GBP.AUD,GBP.CAD,GBP.CHF,GBP.HKD,GBP.JPY,GBP.NZD,GBP.USD,HKD.CNH,HKD.JPY,NZD.CAD,NZD.CHF,NZD.HKD,NZD.JPY,NZD.USD,USD.CAD,USD.CHF,USD.CNH,USD.HKD,USD.JPY,XAU.USD";
             String[] bandArray=new String[]{"3000000","5000000"};
-            testMarketDataRequest(bandArray,"EUR.USD");
-//            testNewOrderSingle();
-//            for(int i=0;i<10;i++){
-//                testQuoteRequest();
-//            }
-//            testQuoteCancel();
+            String[] symbolsArray=symbols.split("[,]");
+            for(int i=0;i<39;i++){
+                testMarketDataRequest(bandArray,symbolsArray[i]);
+            }
+//            testMarketDataRequest(bandArray,"AUD.JPY");
+//            testMarketDataRequest2(bandArray,symbolsArray);
         }
         shutdownLatch.await();
     }
@@ -151,6 +151,21 @@ public class Downstream {
         for(String band:bands){
             sGroup.setField(new Symbol(s));
             sGroup.setField(new MDEntrySize(Double.valueOf(band)));
+            marketDataRequest.addGroup(sGroup);
+        }
+        marketDataRequest.setField(new SubscriptionRequestType('1'));//0-full,1-full+update,2-unsubscribe
+        marketDataRequest.setField(new MDReqID("TEST_marketDataRequest"));
+        marketDataRequest.setField(new PartyID("PDP_PRICE"));
+        marketDataRequest.setField(new ApplSeqNum(1));
+        marketDataRequest.setField(new SettlType("1"));//0-SPOT,1-2D
+        Session.sendToTarget(marketDataRequest,initiator.getSessions().get(0));
+    }
+    private static void testMarketDataRequest2(String[] bands, String[] ss) throws SessionNotFound {
+        MarketDataRequest marketDataRequest=new MarketDataRequest();
+        MarketDataRequest.NoRelatedSym sGroup=new MarketDataRequest.NoRelatedSym();
+        for(String s:ss){
+            sGroup.setField(new Symbol(s));
+            sGroup.setField(new MDEntrySize(Double.valueOf("3000000")));
             marketDataRequest.addGroup(sGroup);
         }
         marketDataRequest.setField(new SubscriptionRequestType('1'));//0-full,1-full+update,2-unsubscribe
