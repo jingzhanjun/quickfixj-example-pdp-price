@@ -53,8 +53,6 @@ public class Downstream {
         InputStream inputStream = null;
         if (args.length == 0) {
             inputStream = Downstream.class.getResourceAsStream("banzai.cfg");
-        } else if (args.length == 1) {
-            inputStream = new FileInputStream(args[0]);
         }
         if (inputStream == null) {
             System.out.println("usage: " + Downstream.class.getName() + " [configFile].");
@@ -105,19 +103,35 @@ public class Downstream {
 
     public static void main(String[] args) throws Exception {
         try {
-            downstream = new Downstream(args);
+            downstream = new Downstream(new String[]{});
             downstream.logon();
         } catch (Exception e) {
             log.info(e.getMessage(), e);
         }finally{
             String symbols="AUD.CAD,AUD.CHF,AUD.HKD,AUD.JPY,AUD.NZD,AUD.USD,CAD.CHF,CAD.HKD,CAD.JPY,CHF.HKD,CHF.JPY,EUR.AUD,EUR.CAD,EUR.CHF,EUR.GBP,EUR.HKD,EUR.JPY,EUR.NZD,EUR.USD,GBP.AUD,GBP.CAD,GBP.CHF,GBP.HKD,GBP.JPY,GBP.NZD,GBP.USD,HKD.CNH,HKD.JPY,NZD.CAD,NZD.CHF,NZD.HKD,NZD.JPY,NZD.USD,USD.CAD,USD.CHF,USD.CNH,USD.HKD,USD.JPY,XAU.USD";
-            String[] bandArray=new String[]{"3000000","5000000"};
             String[] symbolsArray=symbols.split("[,]");
-            for(int i=0;i<39;i++){
-                testMarketDataRequest(bandArray,symbolsArray[i]);
+            if(args!=null&&args.length>0){
+                String amount=args[0];
+                String settlType=args[1];
+                char subScribeType=args[2].charAt(0);
+                int index=Integer.valueOf(args[3]);
+                String symbol=args[4];
+                if(symbol!=null&&!symbol.equals("ALL")){
+                    testMarketDataRequest(amount,symbol,settlType,subScribeType,index);
+                }else{
+                    for(int i=0;i<39;i++){
+                        testMarketDataRequest(amount,symbolsArray[i],settlType,subScribeType,index);
+                    }
+                }
+            }else{
+                String amount="200000";
+                String settlType="1";
+                char subScribeType='1';
+                int index=476;
+                for(int i=0;i<39;i++){
+                    testMarketDataRequest(amount,symbolsArray[i],settlType,subScribeType,index);
+                }
             }
-//            testMarketDataRequest(bandArray,"AUD.JPY");
-//            testMarketDataRequest2(bandArray,symbolsArray);
         }
         shutdownLatch.await();
     }
@@ -145,34 +159,19 @@ public class Downstream {
         Session.sendToTarget(qr,initiator.getSessions().get(0));
     }
 
-    private static void testMarketDataRequest(String[] bands, String s) throws SessionNotFound {
+    private static void testMarketDataRequest(String amount, String symbol,String settlType,char subScribeType,int index) throws SessionNotFound {
+        log.info("amount:"+amount+",symbol:"+symbol+",settlType:"+settlType+",subScribeType:"+subScribeType+",index:"+index);
         MarketDataRequest marketDataRequest=new MarketDataRequest();
         MarketDataRequest.NoRelatedSym sGroup=new MarketDataRequest.NoRelatedSym();
-        for(String band:bands){
-            sGroup.setField(new Symbol(s));
-            sGroup.setField(new MDEntrySize(Double.valueOf(band)));
-            marketDataRequest.addGroup(sGroup);
-        }
-        marketDataRequest.setField(new SubscriptionRequestType('1'));//0-full,1-full+update,2-unsubscribe
-        marketDataRequest.setField(new MDReqID("TEST_marketDataRequest"));
-        marketDataRequest.setField(new PartyID("PDP_PRICE"));
-        marketDataRequest.setField(new ApplSeqNum(1));
-        marketDataRequest.setField(new SettlType("1"));//0-SPOT,1-2D
-        Session.sendToTarget(marketDataRequest,initiator.getSessions().get(0));
-    }
-    private static void testMarketDataRequest2(String[] bands, String[] ss) throws SessionNotFound {
-        MarketDataRequest marketDataRequest=new MarketDataRequest();
-        MarketDataRequest.NoRelatedSym sGroup=new MarketDataRequest.NoRelatedSym();
-        for(String s:ss){
-            sGroup.setField(new Symbol(s));
-            sGroup.setField(new MDEntrySize(Double.valueOf("3000000")));
-            marketDataRequest.addGroup(sGroup);
-        }
-        marketDataRequest.setField(new SubscriptionRequestType('1'));//0-full,1-full+update,2-unsubscribe
-        marketDataRequest.setField(new MDReqID("TEST_marketDataRequest"));
-        marketDataRequest.setField(new PartyID("PDP_PRICE"));
-        marketDataRequest.setField(new ApplSeqNum(1));
-        marketDataRequest.setField(new SettlType("1"));//0-SPOT,1-2D
+        sGroup.setField(new Symbol(symbol));//订阅货币对
+        sGroup.setField(new MDEntrySize(Double.valueOf(amount)));//订阅数量
+        marketDataRequest.addGroup(sGroup);
+        marketDataRequest.setField(new SubscriptionRequestType(subScribeType));//0-full,1-full+update,2-unsubscribe
+        marketDataRequest.setField(new MDReqID("TEST_marketDataRequest"));//自定义
+        marketDataRequest.setField(new PartyID("PDP_PRICE"));//EFX-EFX_PRICE,PDP-PDP_PRICE
+        marketDataRequest.setField(new ApplSeqNum(index));//用于取消订阅时必填，值为报价的1181的值
+        marketDataRequest.setField(new Account("client1@trapi"));
+        marketDataRequest.setField(new SettlType(settlType));//0-SPOT,1-TODAY
         Session.sendToTarget(marketDataRequest,initiator.getSessions().get(0));
     }
 

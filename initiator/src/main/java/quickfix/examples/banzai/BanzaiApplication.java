@@ -76,6 +76,16 @@ public class BanzaiApplication implements Application {
     }
 
     public void toAdmin(quickfix.Message message, SessionID sessionID) {
+        Session.lookupSession(sessionID).setTargetDefaultApplicationVersionID(new ApplVerID("8"));
+        try {
+            String msgType = message.getHeader().getString(MsgType.FIELD);
+            if(MsgType.LOGON.compareTo(msgType) == 0){
+                message.setString(Username.FIELD, "user1");
+                message.setString(Password.FIELD, "pass1");
+            }
+        } catch (FieldNotFound e) {
+            e.printStackTrace();
+        }
     }
 
     public void toApp(quickfix.Message message, SessionID sessionID) throws DoNotSend {
