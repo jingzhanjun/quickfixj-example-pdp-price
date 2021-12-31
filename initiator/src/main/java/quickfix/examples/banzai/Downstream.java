@@ -136,29 +136,6 @@ public class Downstream {
         shutdownLatch.await();
     }
 
-    private static void testNewOrderSingle() throws SessionNotFound {
-        NewOrderSingle newOrderSingle = new NewOrderSingle();
-        newOrderSingle.setField(new QuoteID("QuoteID_56ed394f-314c-4755-8a40-716e8e304113"));
-        newOrderSingle.setField(new ClOrdID("ClOrdID_"+UUID.randomUUID().toString()));
-        newOrderSingle.setField(new Account("usrid1001"));
-        newOrderSingle.setField(new QuoteRespID("20009"));
-        newOrderSingle.setField(new QuoteMsgID("GenIdeal"));
-        newOrderSingle.setField(new TradeDate(new SimpleDateFormat("yyyyMMdd").format(new Date())));
-        Session.sendToTarget(newOrderSingle,initiator.getSessions().get(0));
-    }
-
-    private static void testQuoteRequest() throws SessionNotFound{
-        QuoteRequest qr=new QuoteRequest();
-        qr.setField(new QuoteReqID("QuoteRequestID_"+ UUID.randomUUID().toString()));
-        qr.setField(new Symbol("USDCNY"));
-        qr.setField(new Side('1'));
-        qr.setField(new QuoteType(0));
-        qr.setField(new OrdType('2'));
-        qr.setField(new OptPayAmount(Double.valueOf("1000")));
-        qr.setField(new TransactTime(new Date().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()));
-        Session.sendToTarget(qr,initiator.getSessions().get(0));
-    }
-
     private static void testMarketDataRequest(String amount, String symbol,String settlType,char subScribeType,int index) throws SessionNotFound {
         log.info("amount:"+amount+",symbol:"+symbol+",settlType:"+settlType+",subScribeType:"+subScribeType+",index:"+index);
         MarketDataRequest marketDataRequest=new MarketDataRequest();
@@ -170,17 +147,9 @@ public class Downstream {
         marketDataRequest.setField(new MDReqID("TEST_marketDataRequest"));//自定义
         marketDataRequest.setField(new PartyID("PDP_PRICE"));//EFX-EFX_PRICE,PDP-PDP_PRICE
         marketDataRequest.setField(new ApplSeqNum(index));//用于取消订阅时必填，值为报价的1181的值
-        marketDataRequest.setField(new Account("client1@trapi"));
+        marketDataRequest.setField(new Account(""));
         marketDataRequest.setField(new SettlType(settlType));//0-SPOT,1-TODAY
         Session.sendToTarget(marketDataRequest,initiator.getSessions().get(0));
-    }
-
-    private static void testQuoteCancel() throws SessionNotFound {
-        QuoteCancel quoteCancel=new QuoteCancel();
-        quoteCancel.setField(new QuoteID("TEST_QuoteID"));
-        quoteCancel.setField(new QuoteCancelType(5));
-        quoteCancel.setField(new QuoteReqID("test_QuoteReqID"));
-        Session.sendToTarget(quoteCancel,initiator.getSessions().get(0));
     }
 
 }
